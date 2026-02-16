@@ -18,7 +18,7 @@ export function SidebarNav({ activeItem, onItemClick }: SidebarNavProps) {
   return (
     <div className="flex h-full w-64 flex-col bg-[#15803d] text-white">
       <div className="p-6 border-b border-[#14532d]">
-        <h1 className="text-xl">Provincial Bus Co.</h1>
+        <h1 className="text-xl">Baliwag Transit Inc.</h1>
         <p className="text-sm text-green-100 mt-1">Admin Dashboard</p>
       </div>
       <nav className="flex-1 p-4 space-y-2">
@@ -42,7 +42,7 @@ export function SidebarNav({ activeItem, onItemClick }: SidebarNavProps) {
         })}
       </nav>
       <div className="p-4 border-t border-[#14532d]">
-        <p className="text-xs text-green-100">© 2026 Provincial Bus Co.</p>
+        <p className="text-xs text-green-100">© 2026 Baliwag Transit Inc.</p>
       </div>
     </div>
   );

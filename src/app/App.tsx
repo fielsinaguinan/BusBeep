@@ -3,6 +3,10 @@ import { SidebarNav } from "./components/sidebar-nav";
 import { SummaryCards } from "./components/summary-cards";
 import { FleetDispatchTable } from "./components/fleet-dispatch-table";
 import { PredictiveMaintenance } from "./components/predictive-maintenance";
+import { CargoWaybillForm } from "./components/cargo-waybill-form";
+import { MaintenanceDashboard } from "./components/maintenance-dashboard";
+import { FleetDispatchBoard } from "./components/fleet-dispatch-board";
+import { ReportsAnalyticsDashboard } from "./components/reports-analytics-dashboard";
 
 // Mock data for the dashboard
 const mockFleetDispatches = [
@@ -80,39 +84,59 @@ export default function App() {
     }
   };
 
+  const renderContent = () => {
+    switch (activeNav) {
+      case "cargo-waybills":
+        return <CargoWaybillForm />;
+      case "maintenance":
+        return <MaintenanceDashboard />;
+      case "fleet-schedule":
+        return <FleetDispatchBoard />;
+      case "reports":
+        return <ReportsAnalyticsDashboard />;
+      case "dashboard":
+      default:
+        return (
+          <>
+            <div className="mb-6">
+              <h1 className="text-3xl mb-2">Dashboard</h1>
+              <p className="text-muted-foreground">
+                Welcome to Baliwag Transit Inc. Admin Dashboard. Here you can monitor fleet operations, manage cargo waybills, and oversee maintenance schedules. Use the navigation menu to access different sections of the dashboard.
+              </p>
+            </div>
+
+            <SummaryCards 
+              activeBuses={12}
+              pendingCargo={28}
+              maintenanceAlerts={3}
+            />
+
+            <div className="grid gap-6 lg:grid-cols-2 mb-6">
+              <FleetDispatchTable dispatches={mockFleetDispatches} />
+              <PredictiveMaintenance 
+                buses={mockMaintenanceBuses} 
+                onEncodeMileage={handleEncodeMileage}
+              />
+            </div>
+
+            <div className="bg-accent border border-accent-foreground/20 rounded-lg p-4">
+              <p className="text-sm text-accent-foreground">
+                <strong>Note:</strong> All data on this dashboard is manually entered by staff. 
+                Use the status dropdowns and mileage encoding buttons to keep records up to date.
+              </p>
+            </div>
+          </>
+        );
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       <SidebarNav activeItem={activeNav} onItemClick={setActiveNav} />
       
       <main className="flex-1 overflow-auto">
         <div className="p-8">
-          <div className="mb-6">
-            <h1 className="text-3xl mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Welcome to the Provincial Bus Transportation Admin System
-            </p>
-          </div>
-
-          <SummaryCards 
-            activeBuses={12}
-            pendingCargo={28}
-            maintenanceAlerts={3}
-          />
-
-          <div className="grid gap-6 lg:grid-cols-2 mb-6">
-            <FleetDispatchTable dispatches={mockFleetDispatches} />
-            <PredictiveMaintenance 
-              buses={mockMaintenanceBuses} 
-              onEncodeMileage={handleEncodeMileage}
-            />
-          </div>
-
-          <div className="bg-accent border border-accent-foreground/20 rounded-lg p-4">
-            <p className="text-sm text-accent-foreground">
-              <strong>Note:</strong> All data on this dashboard is manually entered by staff. 
-              Use the status dropdowns and mileage encoding buttons to keep records up to date.
-            </p>
-          </div>
+          {renderContent()}
         </div>
       </main>
     </div>
