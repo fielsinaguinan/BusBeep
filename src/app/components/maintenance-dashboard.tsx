@@ -180,9 +180,6 @@ export function MaintenanceDashboard() {
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl mb-2">Predictive Maintenance</h1>
-        <p className="text-muted-foreground">
-          Track bus mileage and monitor upcoming service requirements
-        </p>
       </div>
 
       {/* Summary Stats */}

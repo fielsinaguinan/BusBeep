@@ -84,9 +84,6 @@ export function CargoWaybillForm() {
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl mb-2">Create Cargo Waybill</h1>
-        <p className="text-muted-foreground">
-          Enter shipment details to generate a digital waybill and tracking number
-        </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

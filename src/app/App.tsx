@@ -7,6 +7,7 @@ import { CargoWaybillForm } from "./components/cargo-waybill-form";
 import { MaintenanceDashboard } from "./components/maintenance-dashboard";
 import { FleetDispatchBoard } from "./components/fleet-dispatch-board";
 import { ReportsAnalyticsDashboard } from "./components/reports-analytics-dashboard";
+import { LiveFleetMap } from "./components/live-fleet-map";
 
 // Mock data for the dashboard
 const mockFleetDispatches = [
@@ -92,6 +93,8 @@ export default function App() {
         return <MaintenanceDashboard />;
       case "fleet-schedule":
         return <FleetDispatchBoard />;
+      case "fleet-map":
+        return <LiveFleetMap />;
       case "reports":
         return <ReportsAnalyticsDashboard />;
       case "dashboard":
@@ -101,7 +104,6 @@ export default function App() {
             <div className="mb-6">
               <h1 className="text-3xl mb-2">Dashboard</h1>
               <p className="text-muted-foreground">
-                Welcome to Baliwag Transit Inc. Admin Dashboard. Here you can monitor fleet operations, manage cargo waybills, and oversee maintenance schedules. Use the navigation menu to access different sections of the dashboard.
               </p>
             </div>
 

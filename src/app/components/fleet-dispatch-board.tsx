@@ -182,9 +182,6 @@ export function FleetDispatchBoard() {
     <div className="h-[calc(100vh-8rem)]">
       <div className="mb-6">
         <h1 className="text-3xl mb-2">Daily Fleet Dispatch</h1>
-        <p className="text-muted-foreground">
-          Assign drivers and buses to scheduled routes
-        </p>
       </div>
 
       <div className="flex gap-6 h-[calc(100%-5rem)]">
