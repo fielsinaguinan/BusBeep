@@ -293,17 +293,6 @@ export function LiveFleetMap() {
                 onMouseLeave={() => setHoveredBus(null)}
                 onClick={() => setSelectedBus(bus.id)}
               >
-                {/* Pulse animation for moving buses */}
-                {bus.status !== "offline" && (
-                  <circle
-                    cx={bus.position.x}
-                    cy={bus.position.y}
-                    r="2.5"
-                    fill={getStatusColor(bus.status)}
-                    opacity="0.3"
-                    className="animate-ping"
-                  />
-                )}
 
                 {/* Bus marker circle */}
                 <circle
@@ -370,9 +359,6 @@ export function LiveFleetMap() {
                         <strong>Driver:</strong> {bus.driver}
                       </p>
                       <p>
-                        <strong>Speed:</strong> {bus.speed} km/h
-                      </p>
-                      <p>
                         <strong>Location:</strong> {bus.location}
                       </p>
                       <p>
@@ -434,12 +420,6 @@ export function LiveFleetMap() {
                           <span>{bus.driver}</span>
                         </div>
 
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Gauge className="h-3 w-3" />
-                          <span className="font-medium text-foreground">
-                            {bus.speed} km/h
-                          </span>
-                        </div>
 
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <MapPin className="h-3 w-3" />
