@@ -179,7 +179,7 @@ export function MaintenanceDashboard() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-3xl mb-2">Predictive Maintenance</h1>
+        <h1 className="text-3xl mb-2">Preventive Maintenance</h1>
       </div>
 
       {/* Summary Stats */}
