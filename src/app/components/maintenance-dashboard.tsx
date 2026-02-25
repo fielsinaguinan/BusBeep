@@ -199,7 +199,7 @@ export function MaintenanceDashboard() {
   return (
     <div className="h-[calc(100vh-80px)] flex flex-col overflow-hidden">
       <div className="mb-4 flex-shrink-0">
-        <h1 className="text-3xl mb-2">Predictive Maintenance</h1>
+        <h1 className="text-3xl mb-2">Preventive Maintenance</h1>
         <p className="text-sm text-muted-foreground">
           Automated mileage tracking with QR code terminal scan integration
         </p>

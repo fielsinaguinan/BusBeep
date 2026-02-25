@@ -38,7 +38,7 @@ export function PredictiveMaintenance({ buses, onEncodeMileage }: PredictiveMain
   return (
     <Card className="flex flex-col h-full">
       <CardHeader className="pb-3 flex-shrink-0">
-        <CardTitle>Predictive Maintenance</CardTitle>
+        <CardTitle>Preventive Maintenance</CardTitle>
         <p className="text-sm text-muted-foreground">
           Auto-calculated mileage tracking
         </p>
