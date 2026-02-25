@@ -11,8 +11,16 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import { Badge } from "./ui/badge";
-import { Wrench, AlertTriangle, CheckCircle } from "lucide-react";
+import { Wrench, AlertTriangle, CheckCircle, Info, Gauge } from "lucide-react";
+import { toast } from "sonner";
 
 interface MaintenanceAlert {
   id: string;
@@ -21,6 +29,7 @@ interface MaintenanceAlert {
   nextServiceThreshold: number;
   requiredService: string;
   status: "Overdue" | "Due Soon" | "On Schedule";
+  autoCalculatedDaily?: number; // Today's auto-calculated mileage
 }
 
 const mockMaintenanceAlerts: MaintenanceAlert[] = [
@@ -31,6 +40,7 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 30000,
     requiredService: "Oil Change & Filter",
     status: "Overdue",
+    autoCalculatedDaily: 178
   },
   {
     id: "2",
@@ -39,6 +49,7 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 30000,
     requiredService: "Oil Change & Filter",
     status: "Due Soon",
+    autoCalculatedDaily: 142
   },
   {
     id: "3",
@@ -47,6 +58,7 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 30000,
     requiredService: "Oil Change & Filter",
     status: "Due Soon",
+    autoCalculatedDaily: 165
   },
   {
     id: "4",
@@ -55,6 +67,7 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 45000,
     requiredService: "Brake Inspection",
     status: "Due Soon",
+    autoCalculatedDaily: 189
   },
   {
     id: "5",
@@ -63,6 +76,7 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 60000,
     requiredService: "Major Service & Inspection",
     status: "Overdue",
+    autoCalculatedDaily: 156
   },
   {
     id: "6",
@@ -71,6 +85,7 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 30000,
     requiredService: "Oil Change & Filter",
     status: "On Schedule",
+    autoCalculatedDaily: 134
   },
   {
     id: "7",
@@ -79,6 +94,7 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 30000,
     requiredService: "Oil Change & Filter",
     status: "On Schedule",
+    autoCalculatedDaily: 198
   },
   {
     id: "8",
@@ -87,30 +103,32 @@ const mockMaintenanceAlerts: MaintenanceAlert[] = [
     nextServiceThreshold: 90000,
     requiredService: "Tire Rotation & Alignment",
     status: "Due Soon",
+    autoCalculatedDaily: 172
   },
 ];
 
 export function MaintenanceDashboard() {
   const [busNumber, setBusNumber] = useState("");
-  const [odometerReading, setOdometerReading] = useState("");
   const [alerts, setAlerts] = useState<MaintenanceAlert[]>(mockMaintenanceAlerts);
+  const [selectedBusAlert, setSelectedBusAlert] = useState<MaintenanceAlert | null>(null);
 
-  const handleEncodeMileage = () => {
-    if (!busNumber || !odometerReading) {
-      alert("Please enter both Bus Number and Odometer Reading");
+  const handleBusNumberChange = (value: string) => {
+    setBusNumber(value);
+    const alert = alerts.find(a => a.busNumber === value);
+    setSelectedBusAlert(alert || null);
+  };
+
+  const handleVerifyMileage = () => {
+    if (!busNumber || !selectedBusAlert) {
+      toast.error("Please enter a valid Bus Number");
       return;
     }
 
-    const mileage = parseInt(odometerReading);
-    if (isNaN(mileage) || mileage < 0) {
-      alert("Please enter a valid odometer reading");
-      return;
-    }
-
-    // Update the mileage for the bus if it exists in alerts
+    const newMileage = selectedBusAlert.currentMileage + (selectedBusAlert.autoCalculatedDaily || 0);
+    
+    // Update the mileage for the bus
     const updatedAlerts = alerts.map(alert => {
       if (alert.busNumber === busNumber) {
-        const newMileage = mileage;
         let newStatus: "Overdue" | "Due Soon" | "On Schedule" = "On Schedule";
         
         if (newMileage >= alert.nextServiceThreshold) {
@@ -129,11 +147,13 @@ export function MaintenanceDashboard() {
     });
 
     setAlerts(updatedAlerts);
-    alert(`Mileage updated successfully!\n\nBus: ${busNumber}\nNew Odometer Reading: ${mileage.toLocaleString()} km`);
+    toast.success(`Mileage verified and logged for ${busNumber}`, {
+      description: `Added ${selectedBusAlert.autoCalculatedDaily} km from QR scan tracking`
+    });
     
     // Reset form
     setBusNumber("");
-    setOdometerReading("");
+    setSelectedBusAlert(null);
   };
 
   const getRowClassName = (status: string) => {
@@ -177,13 +197,16 @@ export function MaintenanceDashboard() {
   const dueSoonCount = alerts.filter(a => a.status === "Due Soon").length;
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl mb-2">Preventive Maintenance</h1>
+    <div className="h-[calc(100vh-80px)] flex flex-col overflow-hidden">
+      <div className="mb-4 flex-shrink-0">
+        <h1 className="text-3xl mb-2">Predictive Maintenance</h1>
+        <p className="text-sm text-muted-foreground">
+          Automated mileage tracking with QR code terminal scan integration
+        </p>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid gap-4 md:grid-cols-3 mb-6">
+      <div className="grid gap-4 md:grid-cols-3 mb-4 flex-shrink-0">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -219,102 +242,126 @@ export function MaintenanceDashboard() {
         </Card>
       </div>
 
-      {/* Update Daily Mileage Form */}
-      <Card className="mb-6 border-primary">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Wrench className="h-5 w-5" />
-            Update Daily Mileage
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="max-w-2xl mx-auto space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="busNumber">Bus Number</Label>
-              <Input
-                id="busNumber"
-                placeholder="e.g., PB-001"
-                value={busNumber}
-                onChange={(e) => setBusNumber(e.target.value.toUpperCase())}
-                autoComplete="off"
-                className="text-lg h-12"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="odometerReading">Ending Odometer Reading (km)</Label>
-              <Input
-                id="odometerReading"
-                type="number"
-                placeholder="Enter current odometer reading"
-                value={odometerReading}
-                onChange={(e) => setOdometerReading(e.target.value)}
-                autoComplete="off"
-                className="text-lg h-12"
-              />
-            </div>
-            <Button 
-              size="lg" 
-              className="w-full h-14 text-lg gap-2"
-              onClick={handleEncodeMileage}
-            >
+      {/* Main Content Grid */}
+      <div className="grid gap-4 lg:grid-cols-5 flex-1 overflow-hidden">
+        {/* Update Daily Mileage Form */}
+        <Card className="lg:col-span-2 border-primary flex flex-col overflow-hidden">
+          <CardHeader className="pb-3 flex-shrink-0">
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Wrench className="h-5 w-5" />
-              Encode Mileage
-            </Button>
-            <p className="text-xs text-muted-foreground text-center">
-              Enter the bus number and current odometer reading to update the maintenance tracking system
+              Update Daily Mileage
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-auto">
+            {/* Helper Banner */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex items-start gap-2">
+              <Info className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+              <div className="text-xs text-blue-900">
+                <strong>Automated Tracking:</strong> Mileage is automatically calculated from terminal QR code scans. 
+                Please verify against physical odometer if necessary.
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="busNumber">Bus Number</Label>
+                <Select value={busNumber} onValueChange={handleBusNumberChange}>
+                  <SelectTrigger className="text-lg h-11">
+                    <SelectValue placeholder="Select bus number" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {alerts.map((alert) => (
+                      <SelectItem key={alert.busNumber} value={alert.busNumber}>
+                        {alert.busNumber}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {selectedBusAlert && (
+                <>
+                  <div className="p-4 bg-green-50 border-2 border-green-200 rounded-lg">
+                    <p className="text-base font-bold text-green-700 mb-3">
+                      Auto-Calculated Mileage for Today: {selectedBusAlert.autoCalculatedDaily} km
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Current Odometer:</span>
+                        <span className="font-semibold text-gray-900">
+                          {selectedBusAlert.currentMileage.toLocaleString()} km
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">After Update:</span>
+                        <span className="font-semibold text-green-700">
+                          {(selectedBusAlert.currentMileage + (selectedBusAlert.autoCalculatedDaily || 0)).toLocaleString()} km
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <Button 
+                size="lg" 
+                className="w-full h-12 text-base gap-2 bg-green-600 hover:bg-green-700"
+                onClick={handleVerifyMileage}
+                disabled={!selectedBusAlert}
+              >
+                <CheckCircle className="h-5 w-5" />
+                Verify & Log Mileage
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                System automatically tracks mileage from QR code scans at terminals
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Maintenance Alerts Table */}
+        <Card className="lg:col-span-3 flex flex-col overflow-hidden">
+          <CardHeader className="pb-3 flex-shrink-0">
+            <CardTitle className="text-lg">Upcoming Maintenance Alerts</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Buses requiring service attention based on current mileage
             </p>
-          </div>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-auto">
+            <div className="rounded-lg border overflow-hidden">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white z-10">
+                  <TableRow>
+                    <TableHead className="bg-white">Bus Number</TableHead>
+                    <TableHead className="bg-white">Current Mileage</TableHead>
+                    <TableHead className="bg-white">Next Service</TableHead>
+                    <TableHead className="bg-white">Required Service</TableHead>
+                    <TableHead className="bg-white">Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {alerts.map((alert) => (
+                    <TableRow 
+                      key={alert.id}
+                      className={getRowClassName(alert.status)}
+                    >
+                      <TableCell className="font-medium">{alert.busNumber}</TableCell>
+                      <TableCell>{alert.currentMileage.toLocaleString()} km</TableCell>
+                      <TableCell>{alert.nextServiceThreshold.toLocaleString()} km</TableCell>
+                      <TableCell className="text-sm">{alert.requiredService}</TableCell>
+                      <TableCell>{getStatusBadge(alert.status)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Upcoming Maintenance Alerts Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Upcoming Maintenance Alerts</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Buses requiring service attention based on current mileage
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Bus Number</TableHead>
-                <TableHead>Current Mileage</TableHead>
-                <TableHead>Next Service Threshold</TableHead>
-                <TableHead>Required Service</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {alerts.map((alert) => (
-                <TableRow 
-                  key={alert.id}
-                  className={getRowClassName(alert.status)}
-                >
-                  <TableCell>{alert.busNumber}</TableCell>
-                  <TableCell>{alert.currentMileage.toLocaleString()} km</TableCell>
-                  <TableCell>{alert.nextServiceThreshold.toLocaleString()} km</TableCell>
-                  <TableCell>{alert.requiredService}</TableCell>
-                  <TableCell>{getStatusBadge(alert.status)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <div className="bg-accent border border-accent-foreground/20 rounded-lg p-4 mt-6">
-        <p className="text-sm text-accent-foreground">
-          <strong>Maintenance Guidelines:</strong>
-          <br />
-          • Update odometer readings daily for accurate tracking
-          <br />
-          • Service intervals: Oil Change every 30,000 km, Brake Inspection every 45,000 km
-          <br />
-          • Rows highlighted in red indicate overdue services requiring immediate attention
-          <br />
-          • Yellow highlights indicate services due within 1,000 km
+      <div className="bg-accent border border-accent-foreground/20 rounded-lg p-3 mt-4 flex-shrink-0">
+        <p className="text-xs text-accent-foreground">
+          <strong>Maintenance Guidelines:</strong> Mileage is tracked automatically via QR terminal scans and GPS route completion • Service intervals: Oil Change every 30,000 km, Brake Inspection every 45,000 km • Rows highlighted in red indicate overdue services requiring immediate attention • Yellow highlights indicate services due within 1,000 km
         </p>
       </div>
     </div>

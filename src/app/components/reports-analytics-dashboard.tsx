@@ -41,6 +41,7 @@ import {
   Star,
   Calendar,
   FileText,
+  CheckCircle,
 } from "lucide-react";
 
 type DateRange = "today" | "week" | "month" | "quarter" | "year";
@@ -191,11 +192,11 @@ export function ReportsAnalyticsDashboard() {
         icon: <Wrench className="h-5 w-5" />,
       },
       {
-        title: "Avg. Passenger Satisfaction",
-        value: data.satisfaction.toFixed(1),
-        change: "+0.2",
+        title: "On-Time Performance (OTP)",
+        value: "94%",
+        change: "+2.1%",
         trend: "up",
-        icon: <Star className="h-5 w-5" />,
+        icon: <CheckCircle className="h-5 w-5" />,
       },
     ];
   };
@@ -258,21 +259,21 @@ export function ReportsAnalyticsDashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="h-[calc(100vh-80px)] flex flex-col overflow-hidden">
       {/* Header Section */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-3 flex-shrink-0">
         <div>
-          <h1 className="text-3xl mb-2">Management Reports & Analytics</h1>
+          <h1 className="text-3xl mb-1">Management Reports & Analytics</h1>
         </div>
       </div>
 
       {/* Filter and Export Controls */}
-      <div className="flex items-center justify-between mb-6 bg-white rounded-lg p-4 border">
+      <div className="flex items-center justify-between mb-3 bg-white rounded-lg p-3 border flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Calendar className="h-5 w-5 text-muted-foreground" />
+          <Calendar className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm">Date Range:</span>
           <Select value={dateRange} onValueChange={(value) => setDateRange(value as DateRange)}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-36 h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -287,7 +288,7 @@ export function ReportsAnalyticsDashboard() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2 h-9 text-sm">
               <FileDown className="h-4 w-4" />
               Export Data
             </Button>
@@ -306,17 +307,17 @@ export function ReportsAnalyticsDashboard() {
       </div>
 
       {/* Metric Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4 mb-3 flex-shrink-0">
         {metrics.map((metric, index) => (
           <Card key={index}>
-            <CardContent className="pt-6">
+            <CardContent className="pt-4 pb-4">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <p className="text-sm text-muted-foreground mb-1">{metric.title}</p>
-                  <p className="text-3xl mb-2">{metric.value}</p>
-                  <p className={`text-sm flex items-center gap-1 ${getTrendColor(metric.trend)}`}>
+                  <p className="text-xs text-muted-foreground mb-1">{metric.title}</p>
+                  <p className="text-2xl mb-1">{metric.value}</p>
+                  <p className={`text-xs flex items-center gap-1 ${getTrendColor(metric.trend)}`}>
                     {metric.trend === "up" ? "↑" : metric.trend === "down" ? "↓" : "→"}
-                    {metric.change} vs previous period
+                    {metric.change}
                   </p>
                 </div>
                 <div className="text-primary">{metric.icon}</div>
@@ -327,26 +328,26 @@ export function ReportsAnalyticsDashboard() {
       </div>
 
       {/* Data Visualization Section */}
-      <div className="grid gap-6 lg:grid-cols-2 mb-6">
-        {/* Bar Chart - Weekly Passenger & Cargo Volume */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Weekly Passenger & Cargo Volume</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Logged passenger count and cargo shipments from completed trips
+      <div className="grid gap-3 lg:grid-cols-2 flex-1 overflow-hidden">
+        {/* Bar Chart - Weekly Fleet Dispatches & Cargo Volume */}
+        <Card className="lg:col-span-1 flex flex-col overflow-hidden">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Weekly Fleet Dispatches & Cargo Volume</CardTitle>
+            <p className="text-xs text-muted-foreground">
+              Logged completed trip segments and cargo shipments
             </p>
           </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+          <CardContent className="flex-1 pt-2">
+            <ResponsiveContainer width="100%" height="85%">
               <BarChart data={weeklyVolumeData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis 
                   dataKey="day" 
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 11 }}
                   stroke="#888"
                 />
                 <YAxis 
-                  tick={{ fontSize: 12 }}
+                  tick={{ fontSize: 11 }}
                   stroke="#888"
                 />
                 <Tooltip 
@@ -354,17 +355,17 @@ export function ReportsAnalyticsDashboard() {
                     backgroundColor: "white",
                     border: "1px solid #e5e7eb",
                     borderRadius: "8px",
-                    fontSize: "12px",
+                    fontSize: "11px",
                   }}
                 />
                 <Legend 
-                  wrapperStyle={{ fontSize: "12px" }}
+                  wrapperStyle={{ fontSize: "11px" }}
                   iconType="square"
                 />
                 <Bar 
                   dataKey="passengers" 
                   fill="hsl(var(--primary))" 
-                  name="Passengers"
+                  name="Completed Trips"
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar 
@@ -375,44 +376,46 @@ export function ReportsAnalyticsDashboard() {
                 />
               </BarChart>
             </ResponsiveContainer>
-            <p className="text-xs text-muted-foreground mt-4 text-center">
-              Data compiled from manual trip logs and waybill records
+            <p className="text-xs text-muted-foreground mt-1 text-center">
+              Data compiled from automated mobile QR terminal scans
             </p>
           </CardContent>
         </Card>
 
         {/* Maintenance Issues Table */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>Top Maintenance Issues by Bus Model</CardTitle>
-            <p className="text-sm text-muted-foreground">
+        <Card className="lg:col-span-1 flex flex-col overflow-hidden">
+          <CardHeader className="pb-2 flex-shrink-0">
+            <CardTitle className="text-base">Top Maintenance Issues by Bus Model</CardTitle>
+            <p className="text-xs text-muted-foreground">
               Most frequent issues from service log entries
             </p>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Bus Model</TableHead>
-                  <TableHead>Issue Type</TableHead>
-                  <TableHead className="text-center">Count</TableHead>
-                  <TableHead className="text-center">Avg. Days</TableHead>
-                  <TableHead className="text-center">Severity</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {maintenanceIssues.map((issue) => (
-                  <TableRow key={issue.id}>
-                    <TableCell className="text-xs">{issue.busModel}</TableCell>
-                    <TableCell className="text-xs">{issue.issueType}</TableCell>
-                    <TableCell className="text-center text-xs">{issue.occurrences}</TableCell>
-                    <TableCell className="text-center text-xs">{issue.avgResolutionDays}</TableCell>
-                    <TableCell className="text-center">{getSeverityBadge(issue.severity)}</TableCell>
+          <CardContent className="flex-1 overflow-auto pt-2">
+            <div className="rounded-lg border overflow-hidden">
+              <Table>
+                <TableHeader className="sticky top-0 bg-white z-10">
+                  <TableRow>
+                    <TableHead className="py-2 text-xs bg-white">Bus Model</TableHead>
+                    <TableHead className="py-2 text-xs bg-white">Issue Type</TableHead>
+                    <TableHead className="text-center py-2 text-xs bg-white">Count</TableHead>
+                    <TableHead className="text-center py-2 text-xs bg-white">Avg. Days</TableHead>
+                    <TableHead className="text-center py-2 text-xs bg-white">Severity</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            <p className="text-xs text-muted-foreground mt-4 text-center">
+                </TableHeader>
+                <TableBody>
+                  {maintenanceIssues.map((issue) => (
+                    <TableRow key={issue.id}>
+                      <TableCell className="text-xs py-2">{issue.busModel}</TableCell>
+                      <TableCell className="text-xs py-2">{issue.issueType}</TableCell>
+                      <TableCell className="text-center text-xs py-2">{issue.occurrences}</TableCell>
+                      <TableCell className="text-center text-xs py-2">{issue.avgResolutionDays}</TableCell>
+                      <TableCell className="text-center py-2">{getSeverityBadge(issue.severity)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
               Data aggregated from maintenance service records
             </p>
           </CardContent>
@@ -420,20 +423,20 @@ export function ReportsAnalyticsDashboard() {
       </div>
 
       {/* Additional Information */}
-      <div className="bg-accent border border-accent-foreground/20 rounded-lg p-4">
-        <p className="text-sm text-accent-foreground">
+      <div className="bg-accent border border-accent-foreground/20 rounded-lg p-2.5 mt-3 flex-shrink-0">
+        <p className="text-xs text-accent-foreground">
           <strong>Report Data Sources:</strong>
           <br />
-          • Trip completion logs manually entered by dispatch staff
+          • Trip completion logs automatically generated from conductor mobile QR scans.
           <br />
-          • Cargo waybill records from cargo office database
+          • Cargo waybill records synced from the terminal master database.
           <br />
-          • Maintenance service logs from mechanic worksheets
+          • Predictive maintenance alerts based on auto-calculated mileage tracking.
           <br />
-          • Passenger satisfaction surveys collected at terminals
+          • Operational efficiency metrics compiled from real-time dispatch data.
           <br />
           <br />
-          All data represents historical records and manually logged information. Use the date range filter to view different time periods and export options to generate printable reports.
+          All data represents real-time system records synced across web and mobile platforms. Use the date range filter to view specific performance periods.
         </p>
       </div>
     </div>
