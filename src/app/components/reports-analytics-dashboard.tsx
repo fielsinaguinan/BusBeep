@@ -38,10 +38,9 @@ import {
   TrendingUp,
   Package,
   Wrench,
-  Star,
+  CheckCircle,
   Calendar,
   FileText,
-  CheckCircle,
 } from "lucide-react";
 
 type DateRange = "today" | "week" | "month" | "quarter" | "year";
@@ -134,40 +133,49 @@ export function ReportsAnalyticsDashboard() {
   const [dateRange, setDateRange] = useState<DateRange>("month");
 
   const getMetrics = (range: DateRange): MetricCard[] => {
+    // Added 'revenue' metric to the data structure
     const metricsData = {
       today: {
         trips: 42,
         waybills: 28,
+        revenue: 4200,
         maintenance: 3,
         satisfaction: 4.5,
       },
       week: {
         trips: 294,
         waybills: 196,
+        revenue: 29400,
         maintenance: 12,
         satisfaction: 4.6,
       },
       month: {
         trips: 1248,
         waybills: 832,
+        revenue: 124800, 
         maintenance: 48,
         satisfaction: 4.7,
       },
       quarter: {
         trips: 3744,
         waybills: 2496,
+        revenue: 374400,
         maintenance: 144,
         satisfaction: 4.6,
       },
       year: {
         trips: 14976,
         waybills: 9984,
+        revenue: 1497600,
         maintenance: 576,
         satisfaction: 4.5,
       },
     };
 
     const data = metricsData[range];
+    
+    // Helper to format the time label for the subtext
+    const timeLabel = range === "today" ? "today" : `this ${range}`;
 
     return [
       {
@@ -178,10 +186,10 @@ export function ReportsAnalyticsDashboard() {
         icon: <TrendingUp className="h-5 w-5" />,
       },
       {
-        title: "Cargo Waybills Processed",
-        value: data.waybills.toLocaleString(),
-        change: "+8.3%",
-        trend: "up",
+        title: "Total Cargo Revenue",
+        value: `₱ ${data.revenue.toLocaleString()}`,
+        change: `${data.waybills.toLocaleString()} Waybills Processed ${timeLabel}`,
+        trend: "up", // Keeps the text green
         icon: <Package className="h-5 w-5" />,
       },
       {
@@ -243,21 +251,6 @@ export function ReportsAnalyticsDashboard() {
     }
   };
 
-  const getDateRangeLabel = (range: DateRange) => {
-    switch (range) {
-      case "today":
-        return "Today";
-      case "week":
-        return "This Week";
-      case "month":
-        return "This Month";
-      case "quarter":
-        return "This Quarter";
-      case "year":
-        return "This Year";
-    }
-  };
-
   return (
     <div className="h-[calc(100vh-80px)] flex flex-col overflow-hidden">
       {/* Header Section */}
@@ -316,7 +309,8 @@ export function ReportsAnalyticsDashboard() {
                   <p className="text-xs text-muted-foreground mb-1">{metric.title}</p>
                   <p className="text-2xl mb-1">{metric.value}</p>
                   <p className={`text-xs flex items-center gap-1 ${getTrendColor(metric.trend)}`}>
-                    {metric.trend === "up" ? "↑" : metric.trend === "down" ? "↓" : "→"}
+                    {/* Only show the arrow if it's a percentage change metric to keep the cargo description clean */}
+                    {metric.change.includes("%") && (metric.trend === "up" ? "↑" : metric.trend === "down" ? "↓" : "→")}
                     {metric.change}
                   </p>
                 </div>

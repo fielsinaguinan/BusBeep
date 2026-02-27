@@ -8,6 +8,7 @@ import { useState } from "react";
 interface CargoItem {
   id: string;
   trackingNumber: string;
+  recipientName: string; // Added recipient name
   busNumber: string;
   origin: string;
   arrivedAt: string;
@@ -18,6 +19,7 @@ const mockArrivedCargo: CargoItem[] = [
   {
     id: "1",
     trackingNumber: "BTI-2026-00142",
+    recipientName: "Juan Dela Cruz",
     busNumber: "PB-001",
     origin: "Manila Terminal",
     arrivedAt: "8:45 AM",
@@ -26,6 +28,7 @@ const mockArrivedCargo: CargoItem[] = [
   {
     id: "2",
     trackingNumber: "BTI-2026-00156",
+    recipientName: "Maria Clara",
     busNumber: "PB-023",
     origin: "Tarlac Hub",
     arrivedAt: "9:12 AM",
@@ -34,6 +37,7 @@ const mockArrivedCargo: CargoItem[] = [
   {
     id: "3",
     trackingNumber: "BTI-2026-00163",
+    recipientName: "Jose Rizal",
     busNumber: "PB-042",
     origin: "Pangasinan Station",
     arrivedAt: "10:05 AM",
@@ -47,10 +51,11 @@ export function CargoVerificationWidget() {
   const handleUnloadCargo = (cargoId: string) => {
     const cargo = cargoItems.find(c => c.id === cargoId);
     if (cargo) {
+      // Updated toast to include the recipient's name for better operational feedback
       toast.success(
-        `Cargo ${cargo.trackingNumber} received and unloaded (${cargo.packages} packages)`,
+        `Cargo unloaded for ${cargo.recipientName} (${cargo.packages} packages)`,
         {
-          description: `From ${cargo.busNumber} - ${cargo.origin}`
+          description: `Tracking: ${cargo.trackingNumber} | From ${cargo.busNumber} - ${cargo.origin}`
         }
       );
       setCargoItems(prev => prev.filter(c => c.id !== cargoId));
@@ -95,7 +100,10 @@ export function CargoVerificationWidget() {
                         <Package className="h-3.5 w-3.5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="font-semibold text-xs">{cargo.trackingNumber}</p>
+                        {/* Updated to display Tracking Number + Recipient Name */}
+                        <p className="font-semibold text-xs text-gray-900">
+                          {cargo.trackingNumber} <span className="font-normal italic text-gray-600 ml-1">• {cargo.recipientName}</span>
+                        </p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-gray-500 flex items-center gap-1">
                             <MapPin className="h-2.5 w-2.5" />

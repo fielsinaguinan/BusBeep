@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
@@ -27,6 +27,7 @@ interface ActiveTrip {
   eta: string;
   cargo: Array<{
     waybillId: string;
+    recipientName: string; // Added recipient name for consistency
     description: string;
     destination: string;
   }>;
@@ -51,8 +52,8 @@ const mockActiveTrips: ActiveTrip[] = [
     currentLocation: "NLEX Dau Exit",
     eta: "45 mins to next terminal",
     cargo: [
-      { waybillId: "WB-2024-001", description: "Electronics (2 boxes)", destination: "Baguio" },
-      { waybillId: "WB-2024-015", description: "Documents", destination: "Baguio" },
+      { waybillId: "WB-2024-001", recipientName: "Marco Reyes", description: "Electronics (2 boxes)", destination: "Baguio" },
+      { waybillId: "WB-2024-015", recipientName: "Sarah Lim", description: "Documents", destination: "Baguio" },
     ]
   },
   {
@@ -65,7 +66,7 @@ const mockActiveTrips: ActiveTrip[] = [
     currentLocation: "Sta. Maria, Bulacan",
     eta: "2 hrs to next terminal",
     cargo: [
-      { waybillId: "WB-2024-032", description: "Medical Supplies", destination: "Tuguegarao" },
+      { waybillId: "WB-2024-032", recipientName: "Dr. Alcantara", description: "Medical Supplies", destination: "Tuguegarao" },
     ]
   },
   {
@@ -78,9 +79,9 @@ const mockActiveTrips: ActiveTrip[] = [
     currentLocation: "Pozorrubio",
     eta: "1 hr 15 mins to next terminal",
     cargo: [
-      { waybillId: "WB-2024-048", description: "Clothing (5 bags)", destination: "Laoag" },
-      { waybillId: "WB-2024-049", description: "Food Items", destination: "Laoag" },
-      { waybillId: "WB-2024-050", description: "Books", destination: "Vigan" },
+      { waybillId: "WB-2024-048", recipientName: "Boutique 101", description: "Clothing (5 bags)", destination: "Laoag" },
+      { waybillId: "WB-2024-049", recipientName: "Josefa Cruz", description: "Food Items", destination: "Laoag" },
+      { waybillId: "WB-2024-050", recipientName: "Univ. Library", description: "Books", destination: "Vigan" },
     ]
   },
   {
@@ -115,6 +116,9 @@ export function FleetIntercomPage() {
   const [messageInput, setMessageInput] = useState("");
   const [messages, setMessages] = useState(mockMessages);
   const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Auto-scroll reference
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const selectedTrip = mockActiveTrips.find(trip => trip.id === selectedTripId);
   const currentMessages = messages[selectedTripId] || [];
@@ -124,6 +128,15 @@ export function FleetIntercomPage() {
     trip.conductorName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     trip.route.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // Auto-scroll whenever currentMessages changes
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentMessages]);
 
   const handleSendMessage = () => {
     if (!messageInput.trim() || !selectedTripId) return;
@@ -264,6 +277,8 @@ export function FleetIntercomPage() {
                     </div>
                   </div>
                 ))}
+                {/* Auto-scroll anchor */}
+                <div ref={messagesEndRef} />
               </div>
             </ScrollArea>
           </CardContent>
@@ -306,7 +321,7 @@ export function FleetIntercomPage() {
           <CardContent className="flex-1 overflow-hidden">
             <ScrollArea className="h-full pr-4">
               <div className="space-y-4">
-                {/* Current Location */}
+                {/* Current Location & ETA */}
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-start gap-2 mb-2">
                     <MapPin className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
@@ -354,7 +369,10 @@ export function FleetIntercomPage() {
                           key={item.waybillId}
                           className="p-2 bg-gray-50 border border-gray-200 rounded"
                         >
-                          <p className="text-xs font-semibold text-gray-900 mb-0.5">{item.waybillId}</p>
+                          {/* Consistent UI: Name placed right next to Waybill ID */}
+                          <p className="font-semibold text-xs text-gray-900 mb-0.5">
+                            {item.waybillId} <span className="font-normal italic text-gray-600 ml-1">• {item.recipientName}</span>
+                          </p>
                           <p className="text-xs text-gray-700 mb-1">{item.description}</p>
                           <p className="text-xs text-gray-500 flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
